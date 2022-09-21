@@ -4,15 +4,13 @@
       <h2>积云会员管理系统</h2>
       <el-form ref="form" :rules="rules" :model="form" label-width="60px">
         <el-form-item label="账号" prop="username">
-          <el-input v-model="form.username"></el-input>
+          <el-input v-model.trim="form.username"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input v-model="form.password"></el-input>
+          <el-input v-model.trim="form.password"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="submitForm('form')"
-            >登录</el-button
-          >
+          <el-button type="primary" @click="submitForm('form')">登录</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -20,6 +18,7 @@
 </template>
 
 <script>
+import { login } from "../../api/user";
 export default {
   data() {
     return {
@@ -34,21 +33,27 @@ export default {
         ],
         password: [
           { required: true, message: "请输入活动名称", trigger: "blur" },
-          { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" },
         ],
       },
     };
   },
   methods: {
+    // 点击登录按钮触发的方法
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
-        if (valid) {
-          alert("submit!");
-        } else {
-          console.log("error submit!!");
-          return false;
-        }
+        if (!valid) return;
+        this.handelLogin();
       });
+    },
+    // 登录方法
+    async handelLogin() {
+      try {
+        const response = await login(this.form);
+        console.log(response);
+        console.log('token',response.token);
+      } catch (e) {
+        console.log(e);
+      }
     },
   },
 };
