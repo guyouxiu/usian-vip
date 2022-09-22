@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import { Message } from 'element-ui';
 import { login } from "../../api/user";
 export default {
   data() {
@@ -47,14 +48,18 @@ export default {
     },
     // 登录方法
     async handelLogin() {
-      try {
-        const response = await login(this.form);
-        console.log(response);
-        console.log('token',response.token);
-      } catch (e) {
-        console.log(e);
-      }
+      const token = await this.$store.dispatch('gologin',this.form)
+      if(!token) return  
+      const UserInfo=await this.$store.dispatch('UserInfo')
+      if(!UserInfo) return
+      this.$message({
+        message: '登录成功',
+        type: 'success'
+      });
+      this.$router.push('/')
     },
+    
+    // 
   },
 };
 </script>

@@ -29,7 +29,7 @@ instance.interceptors.request.use(function (config) {
 instance.interceptors.response.use(function (response) {
     // token 错误提示 过期处理
     if (response.status < 400) {
-        _showError(response.data.code, response.data.message)
+        // _showError(response.data.code, response.data.message)
         return response.data.data
     }
     if (response.status === 401) {
