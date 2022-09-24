@@ -50,7 +50,7 @@ export default {
     async handelLogin() {
       const token = await this.$store.dispatch('gologin',this.form)
       if(!token) return  
-      const UserInfo=await this.$store.dispatch('UserInfo')
+      const UserInfo=await this.$store.dispatch('UserInfos')
       if(!UserInfo) return
       this.$message({
         message: '登录成功',

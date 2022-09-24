@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { login, getUserInfo, } from '../api/user'
-import { setToken, getToken,setuserinfo,getuserinfo } from '../utils/localStorage'
+import { login, getUserInfo, Logout } from '../api/user'
+import { setToken, getToken, setuserinfo, getuserinfo } from '../utils/localStorage'
 
 Vue.use(Vuex)
 
@@ -23,6 +23,7 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    // 登录接口设置token
     async gologin({ commit }, form) {
       try {
         const resdate = await login(form)
@@ -32,7 +33,8 @@ export default new Vuex.Store({
 
       }
     },
-    async UserInfo({ commit }) {
+    // 登录时获取用户信息用户名
+    async UserInfos({ commit }) {
       try {
         const resdata = await getUserInfo()
         console.log(resdata, '6666');
@@ -41,8 +43,15 @@ export default new Vuex.Store({
       } catch (error) {
 
       }
-    }
+    },
 
+    //退出登录
+    async handleLogout({ commit }) {
+      const response = await Logout()
+      commit('SET_TOKEN', '')
+      commit('USERINFO', '')
+      return response
+    }
   },
   modules: {
   }
