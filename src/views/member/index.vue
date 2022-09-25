@@ -271,8 +271,6 @@ export default {
       this.$refs["dialogForm"].validate((validate) => {
         if (!validate) return;
         // console.log(this.dialogform);
-        // 调用会员添加方法
-        // this.handleAdd();
         this.dialogform.id ? this.handleEdit() : this.handleAdd();
       });
     },

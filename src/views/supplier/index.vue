@@ -6,17 +6,17 @@
       ref="ruleForm"
       class="demo-form-inline"
     >
-      <el-form-item prop="cardNum">
+      <el-form-item prop="name">
         <el-input
-          v-model="formInline.cardNum"
+          v-model="formInline.name"
           placeholder="供应商名称"
         ></el-input>
       </el-form-item>
-      <el-form-item prop="name">
-        <el-input v-model="formInline.name" placeholder="联系人"></el-input>
+      <el-form-item prop="linkman">
+        <el-input v-model="formInline.linkman" placeholder="联系人"></el-input>
       </el-form-item>
-      <el-form-item prop="name">
-        <el-input v-model="formInline.name" placeholder="联系电话"></el-input>
+      <el-form-item prop="mobile">
+        <el-input v-model="formInline.mobile" placeholder="联系电话"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="search">查询</el-button>
@@ -27,10 +27,10 @@
     <!-- 表格 -->
     <el-table :data="memberList" height="350" style="width: 100%">
       <el-table-column type="index" label="序号"> </el-table-column>
-      <el-table-column prop="cardNum" label="供应商名称"> </el-table-column>
-      <el-table-column prop="name" label="联系人"> </el-table-column>
-      <el-table-column prop="birthday" label="联系电话"> </el-table-column>
-      <el-table-column prop="phone" label="备注"> </el-table-column>
+      <el-table-column prop="name" label="供应商名称"> </el-table-column>
+      <el-table-column prop="linkman" label="联系人"> </el-table-column>
+      <el-table-column prop="mobile" label="联系电话"> </el-table-column>
+      <el-table-column prop="remark" label="备注"> </el-table-column>
       <el-table-column fixed="right" label="操作" width="150">
         <template v-slot="scope">
           <el-button size="small" @click="handleOpen(scope.row.id)"
@@ -66,9 +66,9 @@
           :rules="dialogrules"
           ref="dialogForm"
         >
-          <el-form-item label="供应商名称" prop="cardNum">
+          <el-form-item label="供应商名称" prop="linkman">
             <el-input
-              v-model="dialogform.cardNum"
+              v-model="dialogform.linkman"
               autocomplete="off"
             ></el-input>
           </el-form-item>
@@ -76,12 +76,12 @@
             <el-input v-model="dialogform.name" autocomplete="off"></el-input>
           </el-form-item>
 
-          <el-form-item label="联系电话" prop="phone">
-            <el-input v-model="dialogform.phone" autocomplete="off"></el-input>
+          <el-form-item label="联系电话" prop="mobile">
+            <el-input v-model="dialogform.mobile" autocomplete="off"></el-input>
           </el-form-item>
 
-          <el-form-item label="备注" prop="address">
-            <el-input type="textarea" v-model="dialogform.address"></el-input>
+          <el-form-item label="备注" prop="remark">
+            <el-input type="textarea" v-model="dialogform.remark"></el-input>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -100,7 +100,7 @@ import {
   AddMember,
   FindMember,
   EditMember,
-} from "../../api/member";
+} from "../../api/supplier";
 export default {
   data() {
     return {
@@ -108,23 +108,17 @@ export default {
       dialogFormVisible: false,
       // 弹窗表单
       dialogform: {
-        cardNum: "",
-        name: "",
-        payType: "",
-        address: "",
-        money: "",
-        integral: "",
-        phone: "",
-        birthday: "",
+       linkman:'',
+        mobile:'',
+        name:'',
+        remark:''
       },
       // 弹窗校验
       dialogrules: {
-        cardNum: [{ required: true, message: "卡号不能为空", trigger: "blur" }],
+        linkman: [{ required: true, message: "卡号不能为空", trigger: "blur" }],
         name: [{ required: true, message: "姓名不能为空", trigger: "blur" }],
         // payType: [{ required: true, message: "类型不能为空", trigger: "change" }],
-        payType: [
-          { required: true, message: "支付类型不能为空", trigger: "change" },
-        ],
+        
       },
       // 标题
       dialogtitle: "",
@@ -137,10 +131,13 @@ export default {
       total: null,
       // 查询参数
       formInline: {
-        cardNum: "",
-        name: "",
-        payType: "",
-        birthday: "",
+        // cardNum: "",
+        // name: "",
+        // payType: "",
+        // birthday: "",
+        linkman:'',
+        mobile:'',
+        name:'',
       },
     };
   },
@@ -214,7 +211,7 @@ export default {
       }
       this.dialogtitle = "会员新增";
 
-      // 调用查询单个会员数据
+      
     },
 
     // 弹窗提交方法
