@@ -54,6 +54,7 @@
       <el-dialog
         :title="dialogtitle"
         :visible.sync="dialogFormVisible"
+        :before-close="handleClose"
         width="400px"
       >
         <el-form
@@ -156,6 +157,15 @@ export default {
     this.getmemberList();
   },
   methods: {
+    // 弹窗x号关闭弹窗
+    handleClose(done) {
+      this.$confirm("确认关闭？")
+        .then((_) => {
+          done();
+        })
+        .catch((_) => {});
+        this.getInit("dialogForm")
+    },
     // 获取会员列表
     async getmemberList() {
       const { rows, total } = await getMemberListApi(

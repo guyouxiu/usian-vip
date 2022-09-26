@@ -84,6 +84,7 @@
         :title="dialogtitle"
         :visible.sync="dialogFormVisible"
         width="400px"
+        :before-close="handleClose"
       >
         <el-form
           :model="dialogform"
@@ -198,6 +199,15 @@ export default {
     this.getmemberList();
   },
   methods: {
+    // 弹窗x号关闭弹窗
+    handleClose(done) {
+      this.$confirm("确认关闭？")
+        .then((_) => {
+          done();
+        })
+        .catch((_) => {});
+        this.getInit("dialogForm")
+    },
     // 获取会员列表
     async getmemberList() {
       const { rows, total } = await getMemberListApi(
@@ -259,18 +269,20 @@ export default {
       if (typeof id === "number") {
         this.dialogtitle = "编辑会员";
         this.handleFind(id);
-        return
+        return;
       }
       this.dialogtitle = "会员新增";
 
       // 调用查询单个会员数据
     },
-    
+
     // 弹窗提交方法
     handleSubmit() {
       this.$refs["dialogForm"].validate((validate) => {
         if (!validate) return;
         // console.log(this.dialogform);
+        // 调用会员添加方法
+        // this.handleAdd();
         this.dialogform.id ? this.handleEdit() : this.handleAdd();
       });
     },
@@ -311,10 +323,10 @@ export default {
       }
     },
     // 弹窗取消功能
-    handleCancel(){
-        this.getInit("dialogForm");
-      this.dialogFormVisible = false
-    }
+    handleCancel() {
+      this.getInit("dialogForm");
+      this.dialogFormVisible = false;
+    },
   },
 };
 </script>

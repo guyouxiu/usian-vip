@@ -12,10 +12,11 @@
       <el-form-item prop="code">
         <el-input v-model="formInline.code" placeholder="商品编号"></el-input>
       </el-form-item>
-      <el-form-item prop="supplierName">
+      <el-form-item prop="currentRow">
         <el-input
-          v-model="formInline.supplierName"
+          v-model="currentRow"
           placeholder="选择供应商"
+          @focus="dialogTableVisible = true"
         ></el-input>
       </el-form-item>
       <el-form-item>
@@ -100,21 +101,6 @@
           </el-form-item>
           <el-form-item label="供应商" prop="supplierName">
             <el-input v-model="dialogform.supplierName" autocomplete="off">
-              <el-dialog title="外层 Dialog" :visible.sync="outerVisible">
-                <el-dialog
-                  width="30%"
-                  title="内层 Dialog"
-                  :visible.sync="innerVisible"
-                  append-to-body
-                >
-                </el-dialog>
-                <div slot="footer" class="dialog-footer">
-                  <el-button @click="outerVisible = false">取 消</el-button>
-                  <el-button type="primary" @click="innerVisible = true"
-                    >打开内层 Dialog</el-button
-                  >
-                </div>
-              </el-dialog>
             </el-input>
           </el-form-item>
         </el-form>
@@ -123,6 +109,24 @@
           <el-button type="primary" @click="handleSubmit">提交</el-button>
         </div>
       </el-dialog>
+      <!-- 第二个表单 -->
+      <el-dialog
+        title="选择供应商"
+        :visible.sync="dialogTableVisible"
+        width="400px"
+      >
+        <!-- <el-table :data="memberList2" height="350" style="width: 100%">
+          <el-table-column type="index" label="序号"> </el-table-column>
+          <el-table-column prop="name" label="供应商名称"> </el-table-column>
+          <el-table-column prop="linkman" label="联系人"> </el-table-column>
+        </el-table> -->
+        <el-table :data="memberList2" height="350" style="width: 100%" border highlight-current-row
+    @current-change="handleCurrentChange">
+          <el-table-column type="index" label="序号"> </el-table-column>
+          <el-table-column prop="name" label="供应商名称"> </el-table-column>
+          <el-table-column prop="linkman" label="联系人"> </el-table-column>
+        </el-table>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -130,6 +134,7 @@
 <script>
 import {
   getMemberListApi,
+  getMemberListApi2,
   deleteMember,
   AddMember,
   FindMember,
@@ -139,8 +144,9 @@ export default {
   data() {
     return {
       // 内置弹窗
-      outerVisible:false,
-      innerVisible: false,
+      dialogTableVisible: false,
+      currentRow: null,
+      
       // 弹窗默认隐藏
       dialogFormVisible: false,
       // 弹窗表单
@@ -163,6 +169,7 @@ export default {
       dialogtitle: "",
       // 接收数据
       memberList: [],
+      memberList2: [],
       // 页码
       page: 1,
       // 条数
@@ -183,8 +190,36 @@ export default {
 
   created() {
     this.getmemberList();
+    this.getmemberList2();
   },
   methods: {
+    // //  内置弹窗表格
+    handleCurrentChange(val) {
+        this.currentRow = val;
+      },
+    // 获取供应商列表
+    async getmemberList2() {
+      const { rows, total } = await getMemberListApi2(
+        this.page,
+        this.size,
+        this.formInline
+      );
+      (this.memberList2 = rows), (this.total = total);
+      console.log(rows, total, "1111");
+    },
+    // 双层弹窗
+    twoOpen() {
+      this.outerVisible = true;
+    },
+    // 弹窗x号关闭弹窗
+    handleClose(done) {
+      this.$confirm("确认关闭？")
+        .then((_) => {
+          done();
+        })
+        .catch((_) => {});
+      this.getInit("dialogForm");
+    },
     // 获取会员列表
     async getmemberList() {
       const { rows, total } = await getMemberListApi(

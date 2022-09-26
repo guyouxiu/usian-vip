@@ -10,6 +10,16 @@ export const getMemberListApi=(page,size,data)=>{
     
 }
 
+// 获取供应商列表接口与分页
+export const getMemberListApi2=(page,size,data)=>{
+    return request ({
+        url:`supplier/list/search/${page}/${size}`,
+        method:'POST',
+        data
+    })
+    
+}
+
 // 删除供应商接口
 
 export const deleteMember =(id)=>{
