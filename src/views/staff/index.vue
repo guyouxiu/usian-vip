@@ -1,6 +1,6 @@
 <template>
   <div class="mt-20">
-    <el-form
+    <!-- <el-form
       :inline="true"
       :model="formInline"
       ref="ruleForm"
@@ -17,29 +17,49 @@
         <el-button type="primary" @click="handleOpen">新增</el-button>
         <el-button @click="getInit('ruleForm')">重置</el-button>
       </el-form-item>
-    </el-form>
-    <!-- 表格 -->
-    <el-table :data="memberList" height="350" style="width: 100%">
-      <el-table-column type="index" label="序号"> </el-table-column>
-      <el-table-column prop="username" label="账号"> </el-table-column>
-      <el-table-column prop="name" label="姓名"> </el-table-column>
-      <el-table-column prop="age" label="年龄"> </el-table-column>
-      <el-table-column prop="mobile" label="电话"> </el-table-column>
-      <el-table-column prop="salary" label="薪酬"> </el-table-column>
-      <el-table-column prop="entryDate" label="入职时间"> </el-table-column>
-      <el-table-column fixed="right" label="操作" width="150">
-        <template v-slot="scope">
-          <el-button size="small" @click="handleOpen(scope.row.id)"
-            >编辑</el-button
-          >
-          <el-button size="small" type="danger" @click="handleDel(scope.row.id)"
-            >删除</el-button
-          >
-        </template>
-      </el-table-column>
-    </el-table>
+    </el-form> -->
+    <queryForm
+      v-model.sync="formInline"
+      @search="handlequeryform"
+      :formItem="formItem"
+      ref="queryForm"
+    >
+      <template v-slot:query>
+        <el-button type="primary" @click="handlequeryform">查询</el-button>
+        <el-button type="primary" @click="handleOpenDialog">新增</el-button>
+        <el-button @click="handleReset">重置</el-button>
+      </template>
+    </queryForm>
+
+    <baseTable
+      @size="handleSize"
+      @page="handlePage"
+      :tableData="memberList"
+      :colums="colums"
+      pages
+      :total="total"
+      :page="page"
+      :size="size"
+    >
+      <template v-slot:opteration="scope">
+        <el-button size="mini" @click="handleOpenDialog(scope.row.id)"
+          >编辑</el-button
+        >
+        <el-button size="mini" @click="del(scope.row.id)">删除</el-button>
+      </template>
+    </baseTable>
+
+    <i-dialog
+      :dialogFormItem="dialogFormItem"
+      @submit="handleSubmit"
+      :dialogRules="dialogRules"
+      labelWidth="120px"
+      :dialogConfig="dialogConfig"
+      v-model.sync="dialogForm"
+      :dialogVisible.sync="dialogVisible"
+    ></i-dialog>
     <!-- 分页 -->
-    <div class="block mt-20">
+    <!-- <div class="block mt-20">
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
@@ -49,9 +69,9 @@
         layout="total, sizes, prev, pager, next, jumper"
         :total="total"
       >
-      </el-pagination>
-      <!-- 新增弹窗 -->
-      <el-dialog
+      </el-pagination> -->
+    <!-- 新增弹窗 -->
+    <!-- <el-dialog
         :title="dialogtitle"
         :visible.sync="dialogFormVisible"
         :before-close="handleClose"
@@ -97,8 +117,8 @@
           <el-button @click="handleCancel">取 消</el-button>
           <el-button type="primary" @click="handleSubmit">提交</el-button>
         </div>
-      </el-dialog>
-    </div>
+      </el-dialog> -->
+    <!-- </div> -->
   </div>
 </template>
 
@@ -110,28 +130,162 @@ import {
   FindMember,
   EditMember,
 } from "../../api/staff";
+import baseTable from "../../components/basetable.vue";
+
 export default {
+  // data() {
+  //   return {
+
+  //     // 弹窗默认隐藏
+  //     dialogFormVisible: false,
+  //     // 弹窗表单
+  //     dialogform: {
+  //       username: "",
+  //       name: "",
+  //       age: "",
+  //       mobile: "",
+  //       salary: "",
+  //       entryDate: "",
+  //     },
+  //     // 弹窗校验
+  //     dialogrules: {
+  //       username: [
+  //         { required: true, message: "卡号不能为空", trigger: "blur" },
+  //       ],
+  //       name: [{ required: true, message: "姓名不能为空", trigger: "blur" }],
+  //       // payType: [{ required: true, message: "类型不能为空", trigger: "change" }],
+  //     },
+  //     // 标题
+  //     dialogtitle: "",
+  //     // 接收数据
+  //     memberList: [],
+  //     // 页码
+  //     page: 1,
+  //     // 条数
+  //     size: 10,
+  //     total: null,
+  //     // 查询参数
+  //     formInline: {
+  //       // cardNum: "",
+  //       // name: "",
+  //       // payType: "",
+  //       // birthday: "",
+  //       username: "",
+  //       name: "",
+  //     },
+  //   };
+  // },
+
   data() {
     return {
-      // 弹窗默认隐藏
-      dialogFormVisible: false,
-      // 弹窗表单
-      dialogform: {
+      
+      page: 1,
+      size: 10,
+      total: null,
+      memberList: [],
+      // 查询参数
+      formInline: {
         username: "",
         name: "",
-        age: "",
-        mobile: "",
-        salary: "",
-        entryDate: "",
       },
-      // 弹窗校验
-      dialogrules: {
+      dialogConfig: {
+        title: "",
+        width: "500px",
+        formWidth: "400",
+      },
+      dialogRules: {
+        name: [{ required: true, message: "供应商不能为空", trigger: "blur" }],
         username: [
-          { required: true, message: "卡号不能为空", trigger: "blur" },
+          { required: true, message: "供应商不能为空", trigger: "blur" },
         ],
-        name: [{ required: true, message: "姓名不能为空", trigger: "blur" }],
-        // payType: [{ required: true, message: "类型不能为空", trigger: "change" }],
       },
+      dialogFormItem: [
+        {
+          label: "账号",
+          type: "input",
+          prop: "username",
+        },
+        {
+          label: "姓名",
+          type: "input",
+          prop: "name",
+        },
+        {
+          label: "年龄",
+          type: "input",
+          prop: "age",
+        },
+         {
+          label: "薪酬",
+          type: "input",
+          prop: "entryDate",
+        },
+         {
+          label: "年龄",
+          type: "input",
+          prop: "mobile",
+        }
+      ],
+      dialogVisible: false,
+      colums: [
+        {
+          label: "序号",
+          type: "index",
+          width: 50,
+        },
+        {
+          label: "账号",
+          prop: "username",
+        },
+        {
+          label: "姓名",
+          prop: "name",
+        },
+        {
+          label: "年龄",
+          prop: "age",
+        },
+        {
+          label: "电话",
+          prop: "mobile",
+        
+        },
+         {
+          label: "薪酬",
+          prop: "salary",
+        
+        },
+         {
+          label: "入职时间",
+          prop: "entryDate",
+        
+        },
+        {
+          label: "操作",
+          type: "slot",
+          slot_name: "opteration",
+        },
+      ],
+
+      formItem: [
+        {
+          type: "input",
+          placeholder: "账号",
+          prop: "username",
+        },
+        {
+          type: "input",
+          placeholder: "姓名",
+          prop: "name",
+        },
+        {
+          type: "slot",
+          slot_name: "query",
+        },
+      ],
+
+      // 弹窗默认隐藏
+      dialogFormVisible: false,
       // 标题
       dialogtitle: "",
       // 接收数据
@@ -141,73 +295,72 @@ export default {
       // 条数
       size: 10,
       total: null,
-      // 查询参数
-      formInline: {
-        // cardNum: "",
-        // name: "",
-        // payType: "",
-        // birthday: "",
-        username: "",
+      dialogForm: {
         name: "",
+        linkman: "",
+        remark: "",
+        mobile: "",
       },
     };
   },
-
   created() {
     this.getmemberList();
   },
+  components: {
+    baseTable,
+    queryForm: () => import("../../components/queryForm.vue"),
+    "i-dialog": () => import("../../components/Dialog.vue"),
+  },
   methods: {
-    // 弹窗x号关闭弹窗
-    handleClose(done) {
-      this.$confirm("确认关闭？")
-        .then((_) => {
-          done();
-        })
-        .catch((_) => {});
-        this.getInit("dialogForm")
-    },
     // 获取会员列表
     async getmemberList() {
-      const { rows, total } = await getMemberListApi(
-        this.page,
-        this.size,
-        this.formInline
-      );
-      (this.memberList = rows), (this.total = total);
-      // console.log(rows, total, "1111");
+      try {
+        const { rows, count } = await getMemberListApi(
+          this.page,
+          this.size,
+          this.formInline
+        );
+        (this.memberList = rows), (this.total = count);
+      } catch (error) {
+        console.log(error);
+      }
     },
-    // 每页条数
-    handleSizeChange(size) {
-      //   console.log(value);
-      this.size = size;
-      this.getmemberList();
+    handleSubmit() {
+      if (!this.dialogForm.id) {
+        this.handleAdd();
+      } else {
+        this.handleEdit();
+      }
     },
-    // 当前页数
-    handleCurrentChange(page) {
-      this.page = page;
-      //   console.log(value);
-      this.getmemberList();
+    async handleAdd() {
+      try {
+        const response = await AddMember(this.dialogForm);
+        this.dialogVisible = false;
+        this.$message.success("新增成功");
+        this.getmemberList();
+      } catch (error) {
+        console.log(error);
+      }
     },
-    // 搜索
-    search(ruleForm) {
-      this.page = 1;
-      this.getmemberList();
+    async handleEdit() {
+      try {
+        const supplier = await EditMember(this.dialogForm.id, this.dialogForm);
+        this.dialogVisible = false;
+        this.$message.success("编辑成功");
+        this.getmemberList();
+      } catch (error) {
+        console.log(error);
+      }
     },
-    // 重置搜索框
-    getInit(formName) {
-      this.$refs[formName].resetFields();
-    },
-    // 删除单个会员信息
-    handleDel(id) {
-      // console.log(id);
-      this.$confirm("确认删除这条记录吗 ?", "提示", {
+     del(id) {
+      this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
       })
-        .then(async () => {
+        .then(async() => {
           try {
-            const response = await deleteMember(id);
+            const supplier = await deleteMember(id);
             this.$message.success("删除成功");
             this.getmemberList();
           } catch (error) {
@@ -221,68 +374,64 @@ export default {
           });
         });
     },
-    // 按钮，打开弹窗
-    handleOpen(id) {
-      this.dialogFormVisible = true;
+
+    handleOpenDialog(id) {
+      this.dialogVisible = true;
       if (typeof id === "number") {
-        this.dialogtitle = "编辑会员";
         this.handleFind(id);
+        this.dialogConfig.title = "供应商编辑";
         return;
       }
-      this.dialogtitle = "会员新增";
+      this.dialogConfig.title = "供应商新增";
     },
-
-    // 弹窗提交方法
-    handleSubmit() {
-      this.$refs["dialogForm"].validate((validate) => {
-        if (!validate) return;
-        // console.log(this.dialogform);
-        // 调用会员添加方法
-        // this.handleAdd();
-        this.dialogform.id ? this.handleEdit() : this.handleAdd();
-      });
-    },
-    // 会员添加方法
-    async handleAdd() {
-      try {
-        const response = await AddMember(this.dialogform);
-        console.log(response);
-        this.getInit("dialogForm");
-        this.dialogFormVisible = false;
-        this.$message.warning("新增成功, 初始密码为:123456");
-        this.getmemberList();
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    // 会员编辑方法
-    async handleEdit() {
-      try {
-        const response = await EditMember(this.dialogform.id);
-        this.getInit("dialogForm");
-        this.dialogFormVisible = false;
-        // this.$message.success("编辑成功");
-        this.getmemberList();
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    // 查询单个会员数据
     async handleFind(id) {
       try {
-        const member = await FindMember(id);
-        // console.log(member);
-        this.dialogform = member;
-        // this.handleEdit()
+        const supplier = await FindMember(id);
+        this.dialogForm = supplier;
       } catch (error) {
         console.log(error);
       }
     },
-    // 弹窗取消功能
-    handleCancel() {
-      this.getInit("dialogForm");
-      this.dialogFormVisible = false;
+
+    handleReset() {
+      this.$refs["queryForm"].handleResetForm();
     },
+    handlequeryform() {
+      this.page = 1;
+      this.getmemberList();
+    },
+    handleSize(size) {
+      this.size = size;
+      this.getmemberList();
+    },
+    handlePage(page) {
+      this.page = page;
+      this.getmemberList();
+    },
+
+    // 获取会员列表
+    // async getmemberList() {
+    //   const { rows, total } = await getMemberListApi(
+    //     this.page,
+    //     this.size,
+    //     this.formInline
+    //   );
+    //   (this.memberList = rows), (this.total = total);
+    //   // console.log(rows, total, "1111");
+    // },
+    // 每页条数
+    handleSizeChange(size) {
+      //   console.log(value);
+      this.size = size;
+      this.getmemberList();
+    },
+    // 当前页数
+    handleCurrentChange(page) {
+      this.page = page;
+      //   console.log(value);
+      this.getmemberList();
+    },
+
   },
 };
 </script>

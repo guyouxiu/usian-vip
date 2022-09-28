@@ -21,10 +21,11 @@ export const deleteMember =(id)=>{
 
 // 添加供应商接口
 
-export const AddMember=()=>{
+export const AddMember=(data)=>{
     return request ({
         url:'supplier',
-        method:'POST'
+        method:'POST',
+        data
     })
 }
 

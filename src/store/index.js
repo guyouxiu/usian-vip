@@ -37,7 +37,7 @@ export default new Vuex.Store({
     async UserInfos({ commit }) {
       try {
         const resdata = await getUserInfo()
-        console.log(resdata, '6666');
+        // console.log(resdata, '6666');
         commit('USERINFO', resdata)
         return resdata
       } catch (error) {

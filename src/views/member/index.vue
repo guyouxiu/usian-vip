@@ -206,16 +206,16 @@ export default {
           done();
         })
         .catch((_) => {});
-        this.getInit("dialogForm")
+      this.getInit("dialogForm");
     },
     // 获取会员列表
     async getmemberList() {
-      const { rows, total } = await getMemberListApi(
+      const { rows, count } = await getMemberListApi(
         this.page,
         this.size,
         this.formInline
       );
-      (this.memberList = rows), (this.total = total);
+      (this.memberList = rows), (this.total = count);
       // console.log(rows, total, "1111");
     },
     // 每页条数
@@ -238,6 +238,7 @@ export default {
     // 重置搜索框
     getInit(formName) {
       this.$refs[formName].resetFields();
+      this.getmemberList();
     },
     // 删除单个会员信息
     handleDel(id) {
@@ -302,7 +303,7 @@ export default {
     // 会员编辑方法
     async handleEdit() {
       try {
-        const response = await EditMember(this.dialogform.id);
+        const response = await EditMember(this.dialogform.id, this.dialogform);
         this.getInit("dialogForm");
         this.dialogFormVisible = false;
         this.$message.success("编辑成功");

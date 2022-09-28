@@ -20,10 +20,11 @@ export const deleteMember =(id)=>{
 
 // 添加会员接口
 
-export const AddMember=()=>{
+export const AddMember=(data)=>{
     return request ({
         url:'member',
-        method:'POST'
+        method:'POST',
+        data
     })
 }
 

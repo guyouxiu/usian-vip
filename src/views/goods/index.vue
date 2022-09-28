@@ -26,7 +26,17 @@
       </el-form-item>
     </el-form>
     <!-- 表格 -->
-    <el-table :data="memberList" height="350" style="width: 100%">
+    <baseTable
+      @size="handleSize"
+      @page="handlePage"
+      :tableData="memberList"
+      :colums="colums"
+      pages
+      :total="total"
+      :page="page"
+      :size="size"
+    ></baseTable>
+    <!-- <el-table :data="memberList" height="350" style="width: 100%">
       <el-table-column type="index" label="序号"> </el-table-column>
       <el-table-column prop="name" label="商品名称"> </el-table-column>
       <el-table-column prop="supplierID" label="商品编码"> </el-table-column>
@@ -45,10 +55,10 @@
           >
         </template>
       </el-table-column>
-    </el-table>
+    </el-table> -->
     <!-- 分页 -->
     <div class="block mt-20">
-      <el-pagination
+      <!-- <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="page"
@@ -57,7 +67,7 @@
         layout="total, sizes, prev, pager, next, jumper"
         :total="total"
       >
-      </el-pagination>
+      </el-pagination> -->
       <!-- 新增弹窗 -->
       <el-dialog
         :title="dialogtitle"
@@ -120,8 +130,14 @@
           <el-table-column prop="name" label="供应商名称"> </el-table-column>
           <el-table-column prop="linkman" label="联系人"> </el-table-column>
         </el-table> -->
-        <el-table :data="memberList2" height="350" style="width: 100%" border highlight-current-row
-    @current-change="handleCurrentChange">
+        <el-table
+          :data="memberList"
+          height="350"
+          style="width: 100%"
+          border
+          highlight-current-row
+          @current-change="handleCurrentChange"
+        >
           <el-table-column type="index" label="序号"> </el-table-column>
           <el-table-column prop="name" label="供应商名称"> </el-table-column>
           <el-table-column prop="linkman" label="联系人"> </el-table-column>
@@ -140,13 +156,65 @@ import {
   FindMember,
   EditMember,
 } from "../../api/goods";
+import baseTable from "../../components/basetable.vue";
+
 export default {
   data() {
     return {
+      colums: [
+        {
+          label: "序号",
+          type: "index",
+          width: 50,
+        },
+        {
+          label: "商品名称",
+          prop: "name",
+        },
+        {
+          label: "商品编码",
+          prop: "supplierID",
+        },
+        {
+          label: "商品规格",
+          prop: "spec",
+        },
+        {
+          label: "零售价",
+          prop: "retailPrice",
+        },
+        {
+          label: "进货价",
+          prop: "purchasePrice",
+        },
+        {
+          label: "库存数量",
+          prop: "storageNum",
+        },
+        {
+          label: "供应商",
+          prop: "supplierName",
+        },
+        {
+          label: "操作",
+          type: "action",
+          width:200,
+          actions: [
+            {
+              type: "primary",
+              text: "编辑",
+            },
+            {
+              type: "danger",
+              text: "删除",
+            },
+          ],
+        },
+      ],
       // 内置弹窗
       dialogTableVisible: false,
       currentRow: null,
-      
+
       // 弹窗默认隐藏
       dialogFormVisible: false,
       // 弹窗表单
@@ -190,23 +258,24 @@ export default {
 
   created() {
     this.getmemberList();
-    this.getmemberList2();
+  },
+  components: {
+    baseTable,
   },
   methods: {
+    handleSize(size) {
+      this.size = size;
+      this.getmemberList();
+    },
+    handlePage(page) {
+      this.page = page;
+      this.getmemberList();
+    },
     // //  内置弹窗表格
     handleCurrentChange(val) {
-        this.currentRow = val;
-      },
-    // 获取供应商列表
-    async getmemberList2() {
-      const { rows, total } = await getMemberListApi2(
-        this.page,
-        this.size,
-        this.formInline
-      );
-      (this.memberList2 = rows), (this.total = total);
-      console.log(rows, total, "1111");
+      this.currentRow = val;
     },
+    
     // 双层弹窗
     twoOpen() {
       this.outerVisible = true;
@@ -222,12 +291,12 @@ export default {
     },
     // 获取会员列表
     async getmemberList() {
-      const { rows, total } = await getMemberListApi(
+      const { rows, count } = await getMemberListApi(
         this.page,
         this.size,
         this.formInline
       );
-      (this.memberList = rows), (this.total = total);
+      (this.memberList = rows), (this.total = count);
       // console.log(rows, total, "1111");
     },
     // 每页条数
